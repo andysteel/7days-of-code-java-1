@@ -6,6 +6,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * ImbdGetTopMoviesService
@@ -17,29 +18,29 @@ public class ImbdGetTopMoviesService {
         return new ImbdGetTopMoviesService();
     }
 
-    public void getTopMovies(String baseUrl, String apikey) {
+    public CompletableFuture<String> getTopMovies(String baseUrl, String apikey) {
         var apiTopMovies = new StringBuilder(baseUrl);
         apiTopMovies
             .append("Top250Movies/")
             .append(apikey);
+
+        var httpClient = HttpClient
+            .newBuilder()
+            .build();
+        
+        HttpRequest httpRequest = null;
         
         try {
-            var httpRequest = HttpRequest
+            httpRequest = HttpRequest
                 .newBuilder(new URI(apiTopMovies.toString()))
                 .GET()
                 .build();
 
-            var httpClient = HttpClient
-                .newBuilder()
-                .build();
-
-            httpClient.sendAsync(httpRequest, BodyHandlers.ofString())
-                .thenApply(HttpResponse::body)
-                .thenAccept(System.out::println)
-                .join();
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-
+        return httpClient.sendAsync(httpRequest, BodyHandlers.ofString())
+            .thenApply(HttpResponse::body)
+            .toCompletableFuture();
     }
 }

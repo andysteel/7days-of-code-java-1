@@ -1,6 +1,7 @@
 package com.gmail.andersoninfonet;
 
 import com.gmail.andersoninfonet.services.ImbdGetTopMoviesService;
+import com.gmail.andersoninfonet.utils.JsonParser;
 import com.gmail.andersoninfonet.utils.LoadProperties;
 
 public class App {
@@ -9,7 +10,27 @@ public class App {
         var baseUrl = LoadProperties.getValue("api.base.url");
         var apiKey = LoadProperties.getValue("api.key");
 
-        ImbdGetTopMoviesService.getInstance().getTopMovies(baseUrl, apiKey);
+        ImbdGetTopMoviesService
+            .getInstance()
+            .getTopMovies(baseUrl, apiKey)
+            .thenApply(JsonParser::extractJson)
+            .thenApply(JsonParser::extractJsonMovies)
+            .thenApply(JsonParser::extractJsonAttributes)
+            .thenAccept(attributes -> {
+                JsonParser.extractTiTles(attributes)
+                    .forEach(System.out::println);
+
+                JsonParser.extractUrlImage(attributes)
+                    .forEach(System.out::println);
+
+                JsonParser.extractAttributeByName(attributes, "imDbRating")
+                    .forEach(System.out::println);
+
+                JsonParser.extractAttributeByName(attributes, "year")
+                    .forEach(System.out::println);
+            })
+            .join();
+
     }
     
 }

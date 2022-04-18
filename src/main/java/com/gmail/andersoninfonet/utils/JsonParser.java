@@ -6,11 +6,12 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import com.gmail.andersoninfonet.responses.ImdbResponse;
 
 import jakarta.json.Json;
-import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
 import jakarta.json.JsonString;
 
@@ -18,22 +19,91 @@ public class JsonParser {
     
     private JsonParser() {}
 
-    public static String readingJson(String json) {
-        try (JsonReader jsonReader = Json.createReader(new StringReader(json))) {
-            JsonObject jsonObject = jsonReader.readObject();
-
-            return jsonObject.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
+    public static String extractJson(String json) {
+        if(json != null) {
+            return json.substring(json.indexOf("[") + 1, json.indexOf("]"));
         }
-        return null;
+        return "";
     }
 
-    public static List<ImdbResponse> imdbListResponse(String json) {
+    public static String[] extractJsonMovies(String json) {
+        if(json != null) {
+            return json.split(Pattern.compile("(?<=})(?:,)(?=\\{)").pattern());
+        }
+        return new String[]{};
+    }
+
+    public static String[] extractJsonAttributes(String[] movies) {
+
+        if(movies != null && movies.length > 0) {
+    
+            return Stream.of(movies)
+                .flatMap(movie -> Stream.of(movie.replace("{\"", "").replace("\"}", "").split("\",\"")))
+                .toArray(String[]::new);
+        }
+        return new String[]{};
+    }
+
+    public static List<String> extractTiTles(String[] attributes) {
+
+        if(attributes != null && attributes.length > 0) {
+            return Stream.of(attributes)
+            .map(att -> {
+                String[] keyValue = att.split("\":\"");
+                if(keyValue[0].equals("title")) {
+                    return keyValue[1];
+                }
+                return "";
+            })
+            .filter(title -> !title.isBlank())
+            .toList();
+        }
+
+        return Collections.emptyList();
+    }
+
+    public static List<String> extractUrlImage(String[] attributes) {
+
+        if(attributes != null && attributes.length > 0) {
+            return Stream.of(attributes)
+            .map(att -> {
+                String[] keyValue = att.split("\":\"");
+                if(keyValue[0].equals("image")) {
+                    return keyValue[1];
+                }
+                return "";
+            })
+            .filter(title -> !title.isBlank())
+            .toList();
+        }
+
+        return Collections.emptyList();
+    }
+
+    public static List<String> extractAttributeByName(String[] attributes, String name) {
+
+        if(attributes != null && attributes.length > 0) {
+            return Stream.of(attributes)
+            .map(att -> {
+                String[] keyValue = att.split("\":\"");
+                if(keyValue[0].equals(name)) {
+                    return keyValue[1];
+                }
+                return "";
+            })
+            .filter(title -> !title.isBlank())
+            .toList();
+        }
+
+        return Collections.emptyList();
+    }
+
+    public static List<ImdbResponse> getImdbListResponse(String json) {
+        var listResponse = new ArrayList<ImdbResponse>();
+
         try (JsonReader jsonReader = Json.createReader(new StringReader(json))) {
             var jsonObject = jsonReader.readObject();
 
-            var listResponse = new ArrayList<ImdbResponse>();
             var items = jsonObject.get("items");
             var itemsArray = items.asJsonArray();
 
@@ -68,10 +138,9 @@ public class JsonParser {
                 
             });
 
-            return listResponse;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return Collections.emptyList();
+        return listResponse;
     }
 }
