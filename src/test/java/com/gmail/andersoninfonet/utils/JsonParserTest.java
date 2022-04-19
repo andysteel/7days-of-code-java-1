@@ -52,6 +52,20 @@ class JsonParserTest {
         assertEquals("id\":\"tt0111161", teste[0]);
     }
 
+//id":"tt0111161","rank":"1","title":"The Shawshank Redemption","fullTitle":"The Shawshank Redemption (1994)","year":"1994","image":"https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_UX128_CR0,3,128,176_AL_.jpg","crew":"Frank Darabont (dir.), Tim Robbins, Morgan Freeman","imDbRating":"9.2","imDbRatingCount":"2574700
+
+    @Test
+    void devePreFormartarUmArrayDeFilmes() {
+        String testeJson = JsonParser.extractJson(json);
+        String[] testeJsonMovies = JsonParser.extractJsonMovies(testeJson);
+
+        String[] teste = JsonParser.preFormatMovieArrayToCreateMovie(testeJsonMovies);
+
+        assertNotNull(teste);
+        assertTrue(() -> teste.length > 0);
+        assertEquals("id\":\"tt0111161\",\"rank\":\"1\",\"title\":\"The Shawshank Redemption\",\"fullTitle\":\"The Shawshank Redemption (1994)\",\"year\":\"1994\",\"image\":\"https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_UX128_CR0,3,128,176_AL_.jpg\",\"crew\":\"Frank Darabont (dir.), Tim Robbins, Morgan Freeman\",\"imDbRating\":\"9.2\",\"imDbRatingCount\":\"2574700", teste[0]);
+    }
+
     @Test
     void deveExtrairTitulos() {
         String testeJson = JsonParser.extractJson(json);

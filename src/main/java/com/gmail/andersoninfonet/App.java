@@ -15,20 +15,9 @@ public class App {
             .getTopMovies(baseUrl, apiKey)
             .thenApply(JsonParser::extractJson)
             .thenApply(JsonParser::extractJsonMovies)
-            .thenApply(JsonParser::extractJsonAttributes)
-            .thenAccept(attributes -> {
-                JsonParser.extractTiTles(attributes)
-                    .forEach(System.out::println);
-
-                JsonParser.extractUrlImage(attributes)
-                    .forEach(System.out::println);
-
-                JsonParser.extractAttributeByName(attributes, "imDbRating")
-                    .forEach(System.out::println);
-
-                JsonParser.extractAttributeByName(attributes, "year")
-                    .forEach(System.out::println);
-            })
+            .thenApply(JsonParser::preFormatMovieArrayToCreateMovie)
+            .thenApply(JsonParser::createMovies)
+            .thenAccept( movies -> movies.forEach(System.out::println))
             .join();
 
     }

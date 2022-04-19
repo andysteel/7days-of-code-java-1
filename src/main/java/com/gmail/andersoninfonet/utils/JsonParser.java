@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import com.gmail.andersoninfonet.model.Movie;
 import com.gmail.andersoninfonet.responses.ImdbResponse;
 
 import jakarta.json.Json;
@@ -39,6 +40,17 @@ public class JsonParser {
     
             return Stream.of(movies)
                 .flatMap(movie -> Stream.of(movie.replace("{\"", "").replace("\"}", "").split("\",\"")))
+                .toArray(String[]::new);
+        }
+        return new String[]{};
+    }
+
+    public static String[] preFormatMovieArrayToCreateMovie(String[] movies) {
+
+        if(movies != null && movies.length > 0) {
+    
+            return Stream.of(movies)
+                .map(movie -> movie.replace("{\"", "").replace("\"}", ""))
                 .toArray(String[]::new);
         }
         return new String[]{};
@@ -96,6 +108,40 @@ public class JsonParser {
         }
 
         return Collections.emptyList();
+    }
+
+    public static List<Movie> createMovies(String[] preFormattedMovie) {
+
+        if(preFormattedMovie != null && preFormattedMovie.length > 0) {
+            return  Stream.of(preFormattedMovie)
+            .map(JsonParser::createMovie)
+            .toList();
+        }
+        return Collections.emptyList();
+    }
+
+    private static Movie createMovie(String preFormattedMovie) {
+
+        String[] movieAttributes = preFormattedMovie.split("\",\"");
+
+        String[] titleValue = extractedFromPosition(movieAttributes, 2);
+        var title = titleValue[1];
+
+        String[] yearValue = extractedFromPosition(movieAttributes, 4);
+        var year = Integer.valueOf(yearValue[1]);
+
+        String[] imageValue = extractedFromPosition(movieAttributes, 5);
+        var urlImage = imageValue[1];
+ 
+        String[] ratingValue = extractedFromPosition(movieAttributes, 7);
+        var rating = new BigDecimal(ratingValue[1]);
+        rating = rating.setScale(1, RoundingMode.HALF_UP);
+
+        return new Movie(title, urlImage, rating, year);
+    }
+
+    private static String[] extractedFromPosition(String[] movieAttributes, int position) {
+        return movieAttributes[position].split("\":\"");
     }
 
     public static List<ImdbResponse> getImdbListResponse(String json) {
