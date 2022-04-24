@@ -8,21 +8,26 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.concurrent.CompletableFuture;
 
+import com.gmail.andersoninfonet.utils.LoadProperties;
+
 /**
  * ImbdGetTopMoviesService
  * @since 0.1.0
  */
-public class ImbdGetTopMoviesService {
+public class ImbdGetTopMoviesService implements ApiClient {
+
+    private static final String BASE_URL = LoadProperties.getValue("api.imdb.base.url");
 
     public static ImbdGetTopMoviesService getInstance() {
         return new ImbdGetTopMoviesService();
     }
 
-    public CompletableFuture<String> getTopMovies(String baseUrl, String apikey) {
-        var apiTopMovies = new StringBuilder(baseUrl);
+    @Override
+    public CompletableFuture<String> getBody(String apiKey) {
+        var apiTopMovies = new StringBuilder(BASE_URL);
         apiTopMovies
             .append("Top250Movies/")
-            .append(apikey);
+            .append(apiKey);
 
         var httpClient = HttpClient
             .newBuilder()

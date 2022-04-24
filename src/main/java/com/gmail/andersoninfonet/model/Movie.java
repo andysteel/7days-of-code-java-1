@@ -1,5 +1,3 @@
 package com.gmail.andersoninfonet.model;
 
-import java.math.BigDecimal;
-
-public record Movie(String title, String urlImage, BigDecimal rating, int year) {}
+public record Movie(String title, String urlImage, String rating, int year, String type) implements Content {}
