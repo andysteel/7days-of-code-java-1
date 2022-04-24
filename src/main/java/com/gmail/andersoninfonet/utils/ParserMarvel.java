@@ -36,7 +36,7 @@ public class ParserMarvel implements JsonParser {
         String[] seriesAttributes = preFormattedMovie.split("(?:,)(?=\")");
 
         String[] titleValue = extractedFromPosition(seriesAttributes, 1);
-        var title = titleValue[1];
+        var title = titleValue[1].replace("\"", "").trim();
 
         String[] yearValue = extractedFromPosition(seriesAttributes, 4);
         var year = Integer.valueOf(yearValue[1]);
@@ -49,7 +49,7 @@ public class ParserMarvel implements JsonParser {
         if(!ratingValue[1].equals("\"\"")) {
             rating = ratingValue[1].replace("\"", "");
         } else {
-            rating = "";
+            rating = "Not rated";
         }
 
 

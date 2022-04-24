@@ -1,6 +1,6 @@
 package com.gmail.andersoninfonet.model;
 
-public interface Content {
+public interface Content extends Comparable<Content> {
     
     String title();
     String urlImage();
